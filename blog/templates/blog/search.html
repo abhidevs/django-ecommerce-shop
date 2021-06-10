@@ -1,0 +1,94 @@
+{% extends 'blog/base.html' %}
+
+{% block title %} Search Results {% endblock %}
+
+{% block css %}
+  <style>
+    
+    body {
+      background: rgba(228, 235, 235, 0.568);
+    }
+
+    .post {
+      background: white;
+      box-shadow: 0px 0px 15px 3px rgb(211, 212, 212);
+    }
+
+    .post-img {
+      object-fit: cover;
+      width: 286px;
+      height: 170px;
+    }
+
+    .post-title {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+    }
+
+    .post-content {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      overflow: hidden;
+    }
+
+    .post {
+      cursor: pointer;
+    }
+
+  </style>
+{% endblock %}
+
+{% block body %} 
+
+<div class="w-75 mx-auto">
+    <div class="row mx-5 mt-3">
+        <h3 class="pr-2 my-auto font-weight-normal">Search Results for : </h3>
+        <h4 class="my-auto">{{ query|truncatechars:62 }}</h4>
+    </div>
+
+    {% if posts|length > 0 %}
+
+    <div class="row my-4 mx-5">
+
+        {% for post in posts %}
+            <div class="col-md-4 p-2">
+            <div class="card post" style="width: 18rem;" id="{{ post.slug }}">
+                <img class="card-img-top post-img" src="/media/{{ post.image }}" alt="post image">
+                <div class="card-body px-4 py-2">
+                <h5 class="card-title mb-2 post-title">{{ post.title.capitalize }}</h5>
+                <p class="card-text d-inline text-primary">{{ post.author.capitalize }}</p>
+                <p class="card-text d-inline">| {{ post.post_date|date:"M d Y" }}</p>
+                <div class="mt-2 mb-4 card-text text-secondary post-content">
+                    {{ post.content.capitalize }}
+                </div>  
+                </div>
+            </div>
+            </div>
+    {% endfor %}
+
+    </div>
+
+    {% else %}
+
+        <div class="mx-5 my-4 py-3 px-4">
+            <h6>No Search Results.</h6>
+            <p>Your query did not match any results</p>
+        </div>
+
+    {% endif %}
+
+</div>
+  
+{% endblock %}
+
+{% block js %}
+  <script>
+    $('.post').on('click', function () {
+      slug = this.id.toString()
+      window.open('/blog/p/' + slug, '_blank')
+    })
+  </script>
+{% endblock  %}

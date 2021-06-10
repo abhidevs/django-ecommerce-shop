@@ -1,0 +1,69 @@
+{% extends 'blog/base.html' %}
+
+{% block title %} Blog Editor Dashboard {% endblock %}
+
+{% block body %}
+    <div class="w-75 mx-auto">
+        <div class="row mt-5 mb-2">
+                <h3>Posts</h3>
+                <a href="/blog/addPost" class="btn btn-outline-secondary ml-4" style="border-radius: 5px;">New Post</a>
+                <a href="/blog/logout" class="btn btn-outline-secondary ml-auto" style="border-radius: 5px;">Logout</a>
+        </div>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Author</th>
+                    <th>Posted on</th>
+                    <th>Edit</th>
+                    <th>View</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+    
+            <tbody>
+                {% for post in posts %}
+                <tr id="p{{ post.post_id }}">
+                    <td><p class="my-1 h6">{{ post.title }}
+                    {% if post.draft_status %} 
+                        <small class="text-primary pl-2 font-italic">draft</small>
+                    {% endif %}
+                    </p></td>
+                    <td><p class="my-1 h6">{{ post.category }}</p></td>
+                    <td><p class="my-1 h6">{{ post.author }}</p></td>
+                    <td><p class="my-1 h6">{{ post.post_date }}</p></td>
+                    <td><a href="/blog/editPost/edit/p{{ post.post_id }}" class="btn btn-outline-primary text-decoration-none py-1 px-3">edit</a></td>
+                    <td><a href="/blog/p/{{ post.slug }}" target="_blank" class="btn btn-outline-primary text-decoration-none py-1 px-3">view</a></td>
+                    <td><button class="btn btn-outline-primary text-decoration-none py-1 px-3 deleteBtn">delete</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            
+        </table>
+
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $('.deleteBtn').on('click', function (e) {
+            e.preventDefault();
+            var post_row = $(this).parent().parent();
+            var post_id = post_row.attr('id');
+
+            $.ajax({
+                type:"POST",
+                url: '/blog/deletePost/' + post_id,
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: function(data) 
+                {                   
+                    post_row.remove();
+                },
+            })
+        })
+    </script>
+{% endblock  %}

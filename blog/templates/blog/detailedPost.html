@@ -1,0 +1,45 @@
+{% extends 'blog/base.html' %}
+
+{% block title %} {{ post.title.capitalize }} {% endblock %}
+
+{% block css %}
+  <style>
+
+    body {
+        background: rgba(228, 235, 235, 0.568);
+    }
+
+    .post-body {
+        background: white;
+        box-shadow: 0px 0px 15px 3px rgb(211, 212, 212);
+    }
+    
+    .post-img {
+        object-fit: cover;
+        height: 400px;
+    }
+
+  </style>
+{% endblock %}
+
+{% block body %}
+    
+    <div class="w-75 mx-auto px-4">
+        <div class="post-body mx-5 my-4 rounded">
+            <div class="w-100">
+                <img class="img-fluid rounded-top post-img w-100" src="/media/{{ post.image }}" alt="post image">
+            </div>
+            <div class="mt-4 mx-5 py-3 px-5">
+                <h3 class="mb-2 post-title">{{ post.title.capitalize }}</h3>
+                <p class="d-inline text-primary">{{ post.author.capitalize }}</p>
+                <p class="d-inline">| {{ post.post_date|date:"M d Y" }}</p>
+                <div class="my-4 pt-2 text-secondary post-content">
+                    {% autoescape off %}
+                        {{ post.content.capitalize }}
+                    {% endautoescape %}
+                </div>  
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

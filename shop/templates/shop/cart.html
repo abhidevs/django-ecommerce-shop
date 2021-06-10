@@ -1,0 +1,199 @@
+{% extends 'shop/basic.html' %}
+{% load customfilters %}
+
+{% block title %} Cart {% endblock %}
+
+{% block css %}
+    <style>
+        .productImg, .productName, .productDesc {
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+
+    <div class="row px-5 bg-warning mt-2 checkout">
+        <p class="ml-5 text-secondary mt-3"><b>Total Price - <span>100</span>/-</b></p>
+        <!-- <button class="btn btn-outline-secondary ml-auto mr-5 my-2">Checkout</button> -->
+        <a href="/checkout/" class="btn btn-outline-secondary ml-auto mr-5 my-2 border-dark">Checkout</a>
+    </div>
+
+    <div class="w-75 mx-auto container-div">
+        {% for product in cartProds %}
+            <div class="row py-4 px-2 mx-4 my-4 cartItem border rounded" id="{{ product.id }}">
+                <div class="col-md-2 pl-1">
+                    <img src="/media/{{ product.image }}" class="img-fluid productImg rounded" alt="{{ product.product_name }}">
+                    <div class="row mt-3">
+                        <button class="btn btn-outline-secondary rounded decrementQty mr-3 ml-auto px-3" id="pr-{{ product.id }}"><b>-</b></button>
+                        <p class="mr-3"> {{ quantity|hash:product.id }} </p>
+                        <button class="btn btn-outline-secondary rounded incrementQty mr-auto px-3" id="pr-{{ product.id }}"><b>+</b></button>
+                    </div>
+                </div>
+                <div class="col-md-9 my-1">
+                    <h6 class="productName">{{ product.product_name.capitalize }}</h6>
+                    <p class="productDesc small">{{ product.desc.capitalize }}</p>
+                    <p class="mt-2 small"><b>{{ product.price }} /-</b></p>
+                    <div class="mt-4 pt-3">
+                        <a href="" class="text-decoration-none mr-4 h6">Buy Now</a>
+                        <a href="" class="text-decoration-none removeItem h6" id="pr-{{ product.id }}">Remove From Cart</a>
+                    </div>
+                </div>
+            </div>
+
+            {% if not forloop.last %}
+                <hr>
+            {% endif %}
+
+        {% endfor %}
+
+    </div>
+
+    <div class="row px-5 bg-warning my-2 checkout">
+        <p class="ml-5 text-secondary mt-3"><b>Total Price - <span>100</span>/-</b></p>
+        <a href="/checkout/" class="btn btn-outline-secondary ml-auto mr-5 my-2 border-dark">Checkout</a>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+
+        var elementList = $('.decrementQty')
+        for(var i=0; i<elementList.length; i++) {
+            if (elementList[i].nextElementSibling.innerHTML == 1){
+                var product_id = elementList[i].id.toString()
+                $('.decrementQty#' + product_id).prop('disabled', true);
+            }
+        };
+
+        $('.incrementQty').click(function () {
+            var qtyElement = this.previousElementSibling
+            var product_id = this.id.toString()
+            var action = 'increment'
+
+            $.ajax({
+                type:"POST",
+                url: "/updateCart/" + action,
+                data:{
+                    product_id: product_id,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(data) 
+                {
+                    quantity = data.quantity
+                    updateCartLength(data.cartItemsCount);
+                    updateQty(qtyElement ,quantity)
+
+                    if (quantity > 1){
+                        $('.decrementQty#' + product_id).prop('disabled', false);
+                    }
+
+                    updateTotalPrice();
+
+                },
+                error: function() 
+                {
+
+                }
+            })
+        })
+
+        $('.decrementQty').click(function () {
+            var qtyElement = this.nextElementSibling
+            var product_id = this.id.toString()
+            var action = 'decrement'
+
+            $.ajax({
+                type:"POST",
+                url: "/updateCart/" + action,
+                data:{
+                    product_id: product_id,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(data) 
+                {
+                    quantity = data.quantity
+                    updateCartLength(data.cartItemsCount);
+                        
+                    updateQty(qtyElement ,quantity)
+
+                    if (quantity == 1){
+                        $('.decrementQty#' + product_id).prop('disabled', true);
+                    }
+
+                    updateTotalPrice();
+                },
+                error: function() 
+                {
+
+                }
+            })
+        })
+
+        function updateQty(element ,qty) {
+            element.innerHTML = qty
+        }
+
+        $('.removeItem').click(function (e) {
+            e.preventDefault();
+            var product_id = this.id.toString()
+            var action = 'removeitem'
+
+            $.ajax({
+                type:"POST",
+                url: "/updateCart/" + action,
+                data:{
+                    product_id: product_id,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(data) 
+                {
+                    quantity = data.quantity
+                    updateCartLength(data.cartItemsCount);
+
+                    itemDiv = $('.removeItem#' + product_id).parent().parent().parent();
+                    nextElement = itemDiv.next()
+                    itemDiv.remove();
+                    nextElement.remove();
+
+                    updateTotalPrice();
+                    updateCheckoutDiv();
+
+                },
+                error: function() 
+                {
+
+                }
+            })
+        })
+
+        updateTotalPrice();
+        updateCheckoutDiv();
+
+        function updateTotalPrice() {
+            var elementList = $('.cartItem')
+            var totalPrice = 0
+            for (let i = 0; i < elementList.length; i++) {
+                var qty = elementList[i].children[0].children[1].children[1].innerHTML
+                var price = elementList[i].children[1].children[2].children[0].innerHTML.slice(0, -3)
+                totalPrice += (parseInt(qty) * parseInt(price))
+            }
+
+            $('.checkout').find('span').html(totalPrice)
+        }
+
+        function updateCheckoutDiv() {
+            if ($('.cartItem').length == 0) {
+                $('.checkout').remove();
+                showHtml = `<div class="text-center mt-5 mx-5"><hr><p class="display-4">There's no item in your cart</p><h2>Add your desired product to cart, that will appear here</h2><hr></div>`
+                $('.container-div').html(showHtml)
+            }
+        }
+
+        $('.productImg, .productName, .productDesc').on("click", function () {
+            var product_id = $(this).parentsUntil('div.container-div')[1].id.toString()
+            console.log(product_id)
+            window.open('/product/' + product_id, '_blank');
+        })
+    </script>
+{% endblock  %}

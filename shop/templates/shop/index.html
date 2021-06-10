@@ -1,0 +1,76 @@
+{% extends 'shop/basic.html' %}
+
+{% block title %} Home {% endblock %}
+
+{% block css %}
+  <style>
+    .products .product {
+      cursor: pointer;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+
+  {% load static %}
+
+  <div class="products mx-4 mt-3">
+
+    {% for category, product in productsByCat.items %}
+      <h1>{{ category.capitalize }}</h1>
+      <br>
+      {% for item in product %}
+        <div class="col-md-9 product" id="{{ item.id }}">
+          <div class="card mb-3">
+            <div class="row no-gutters">
+              <div class="col-md-4">
+                <img src='/media/{{ item.image }}' class="img-fluid" alt="product-image">
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-10 col-lg-11">
+                      <h5 class="card-title">{{ item.product_name }}</h5>
+                      <p class="card-text">{{ item.desc }}</p>
+                      <h4 class="card-text">{{ item.price }} /-</h4>
+                    </div>
+                    <div class="col-2 col-lg-1">
+                      <i id="pr-{{ item.id }}" class="far fa-heart fa-lg wishlist"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+      <br>
+    {% endfor %}
+
+  </div>
+
+{% endblock %}
+
+{% block js %}
+  <script>
+
+    $('.wishlist').click(function () {
+      event.stopPropagation();
+      var product_id = this.id.toString()
+      if (wishlist[product_id] != undefined){
+        wishlist[product_id] += 1;
+      }
+      else {
+        wishlist[product_id] = 1;
+      }
+      localStorage.setItem('wishlist', JSON.stringify(wishlist));
+      document.getElementById('wishlist').innerHTML = Object.keys(wishlist).length;
+    })
+
+    $('.product').click(function () {
+      var product_id = this.id.toString()
+      window.open('/product/' + product_id, '_blank');
+    })
+
+  </script>
+{% endblock  %}

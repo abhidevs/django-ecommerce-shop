@@ -1,0 +1,240 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %} Edit {{ post.title }} {% endblock %}
+
+{% block css %}
+  <style>
+
+    body {
+        background: rgba(228, 235, 235, 0.568);
+    }
+
+    .post-form {
+        background: white;
+        box-shadow: 0px 0px 15px 3px rgb(211, 212, 212);
+    }
+
+    #content {
+        overflow: auto;
+    }
+
+  </style>
+{% endblock %}
+
+{% block body %}
+
+    <div class="container py-4">
+
+        <div class="px-4 py-2 rounded post-form">
+            
+            <div class="row mt-3">
+                <div class="col mx-3">
+    
+                    <form method="POST" action="/blog/editPost/edit/p{{ post.post_id }}" name="addPost" id="addPostForm" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row m-0 pt-1">
+                            <h5 class="pt-1 pr-3">Edit Post</h5>
+                            <div class="form-group col-6">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                      <span class="input-group-text" id="inputGroupPrepend2">Post title</span>
+                                    </div>
+                                    {{ form.title }}
+                                </div>
+                            </div>
+                            <div class="col text-right pr-0">
+                                {% if post.draft_status %}
+                                <button type="submit" form="addPostForm" class="btn btn-outline-primary py-1 mr-1 rounded-sm submitBtn" id="p{{ post.post_id }}">Save</button>
+                                <button class="btn btn-outline-primary py-1 rounded-sm mr-1" id="publishBtn">Publish</button>
+                                {% else %}
+                                <button type="submit" form="addPostForm" class="btn btn-outline-primary py-1 mr-1 rounded-sm submitBtn" id="p{{ post.post_id }}">Update</button>
+                                <button class="btn btn-outline-primary py-1 rounded-sm mr-1" id="toDraftBtn">Revert to draft</button>
+                                {% endif %}
+                                <button class="btn btn-outline-primary py-1 rounded-sm mr-1" id="previewBtn">Preview</button>
+                                <a href="/blog/dashboard" class="btn btn-outline-primary py-1 rounded-sm mr-1">Close</a>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-9 pr-2">
+                                <div class="form-group">
+                                    {{ form.content }}
+                                    {{ form.media }}
+                                </div>
+                            </div>
+
+                            <div class="col-3 pl-3">
+                                <div class="h-100 pl-4" style="border-left: 2px solid rgb(170, 165, 165);">
+                                    <div class="form-group">
+                                        <label for="category">category</label>
+                                        {{ form.category }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="author">author</label>
+                                        {{ form.author }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="top image">top image</label>
+                                        <p class="mb-1 small" style="overflow-wrap: break-word;">current iamge : <a href="/media/{{ post.image }}" target="_blank" id="currentImage">{{ post.image|truncatechars:50 }}</a></p>
+                                        {{ form.image }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+    
+            <hr>
+    
+            <!-- Footer -->
+            <footer class="my-5"> 
+                <div class="text-center">
+                    <p class="copyright text-muted">Copyright &copy;shoppersplace.com 2020</p>
+                </div>
+            </footer>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+
+        document.querySelector('#imageInput').required = false;
+        document.getElementById('imageInput').onchange = function () {
+            imageFile = this.files;
+
+            if (imageFile.length != 0) {
+                var currentImage = document.getElementById('currentImage');
+                currentImage.href = window.URL.createObjectURL(imageFile[0]);
+                currentImage.innerHTML = imageFile[0].name;
+            } else {
+                var currentImage = $('#currentImage');
+                currentImage.html('No image selected');
+                currentImage.removeAttr('href');
+            }
+        }
+
+        $('.submitBtn').click(function (e) {
+            e.preventDefault();
+            var post_id = this.id.toString()
+            for (var instance in CKEDITOR.instances)
+                CKEDITOR.instances[instance].updateElement();
+            var form = document.getElementById('addPostForm')
+            var data = new FormData(form);
+
+            $.ajax({
+                type:"POST",
+                url: '/blog/editPost/edit/' + post_id,
+                data: data,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function(data) 
+                {
+
+                },
+            })
+
+        })
+
+        $('#previewBtn').click(function (e) {
+            e.preventDefault();
+            var post_id = $('.submitBtn').attr('id')
+            for (var instance in CKEDITOR.instances)
+                CKEDITOR.instances[instance].updateElement();
+            var form = document.getElementById('addPostForm')
+            var data = new FormData(form);
+
+            $.ajax({
+                type:"POST",
+                url: '/blog/editPost/edit/' + post_id,
+                data: data,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function(data) 
+                {
+                    var post_slug = data['post_slug'];
+                    window.open(`/blog/p/${post_slug}`, '_blank');
+                },
+            })
+
+        })
+
+        $('#publishBtn').click(function (e) {
+            e.preventDefault();
+
+            var id = $('.submitBtn').attr('id')
+            if (id) {
+                var url = `/blog/editPost/edit/${id}`
+            } else {
+                var url = ''
+            }
+
+            var post_id = this.id.toString()
+            for (var instance in CKEDITOR.instances)
+                CKEDITOR.instances[instance].updateElement();
+            var form = document.getElementById('addPostForm')
+            var data = new FormData(form);
+
+            $.ajax({
+                type:"POST",
+                url: url,
+                data: data,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function(data) 
+                {
+                    if ('error' in data) {
+                        showAlert('danger', data['error']);
+                    } else {
+                        if (data['post_id'] != undefined) {
+                            var post_id = `p${data['post_id']}`
+                            $('.submitBtn').attr('id', post_id);
+                        }
+
+                        publishPost();
+                    }
+                },
+            })
+
+        })
+
+        function publishPost() {
+            var post_id = $('.submitBtn').attr('id')
+            
+            $.ajax({
+                type:"POST",
+                url: '/blog/editPost/publish/' + post_id,
+                data: {},
+                success: function(data) 
+                {                   
+                    window.location.replace('/blog/dashboard');          
+                },
+            })
+        }
+
+        $('#toDraftBtn').click(function (e) {
+            e.preventDefault();
+
+            var post_id = $('.submitBtn').attr('id')
+            
+            $.ajax({
+                type:"POST",
+                url: '/blog/editPost/toDraft/' + post_id,
+                data: {},
+                success: function(data) 
+                {                   
+                    window.location.replace('/blog/dashboard');
+                },
+            })
+
+        })
+
+    </script>
+{% endblock  %}

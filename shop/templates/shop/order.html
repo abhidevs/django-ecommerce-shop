@@ -1,0 +1,137 @@
+{% extends 'shop/basic.html' %}
+{% load customfilters %}
+
+{% block title %} View Order {% endblock %}
+
+{% block css %}
+    <style>
+
+        #timeline .event {
+            border-bottom: 3px solid rgb(212, 212, 212);
+        }
+
+        .circle {
+            margin: 0 auto;
+            top: 7px;
+            left: -60px;
+            width: 13px;
+            height: 13px;
+            background: rgb(183, 185, 183);
+            border-radius: 50%;
+            display: block;
+            position: relative;
+        }
+
+        #timeline .event:first-child {
+            border-color: green;
+        }
+
+        .ordered-check, .packed-check {
+            background: green;
+        }
+
+        .event .status {
+            margin-top: 10px;
+            margin-left: -36px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .delivered .status {
+            position: relative;
+            top: -34px;
+            left: 349px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .delivered .circle {
+            position: relative;
+            left: 353px;
+            top: -27px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+
+<div class="w-75 mx-auto">
+    <div class="border rounded mx-4 my-4 py-3 px-4" style="font-size: 14px;">
+        <div class="row">
+            <div class="col-4">
+                <p class="mb-1"><b>Delivery Address</b></p>
+                <p class="m-0">{{ address.name }}</p>
+                <p class="m-0">{{ address.landmark }},</p>
+                <p class="m-0">{{ address.address }},</p>
+                <p class="mb-1">{{ address.city }}, {{ address.state }} - {{ address.zip }}</p>
+                <p class="m-0 d-inline">{{ address.email }}</p>
+                <p class="ml-2 d-inline">{{ address.phone }}</p>
+            </div>
+            <div class="col-4">
+                <p class="mb-1"><b>Payment Method</b></p>
+                <p>Pay on Delivery(Cash/Card)</p>
+            </div>
+            <div class="col-4">
+                <p class="mb-1"><b>Price Summary</b></p>
+                <p class="m-0">Item(s) Subtotal : <span class="float-right">₹{{ orderItem.pricePerItem|multiply:orderItem.quantity }}</span></p>
+                <p class="mb-1">Shipping Charge : <span class="float-right">₹40</span></p>
+                <p class="m-0">Total : <span class="float-right">₹{{ orderItem.pricePerItem|multiply:orderItem.quantity|add:'40' }}</span></p>
+                <p class="mb-1">Free Shipping : <span class="float-right">- ₹40</span></p>
+                <p class=""><strong>Grand Total : <span class="float-right">₹{{ orderItem.pricePerItem|multiply:orderItem.quantity }}</span></strong></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-1 mx-4 my-4 border rounded">
+        <div class="row py-3">
+            <div class="col-6">
+                <a href="/product/{{ prod.id }}" target="_blank" class="text-decoration-none text-dark">
+                    <div class="row my-3">
+                        <div class="col-4 my-auto">
+                            <img src="/media/{{ prod.image }}" class="img-fluid p-1" alt="{{ prod.product_name }}">
+                        </div>
+                        <div class="col-8 my-auto">
+                            <h6 class="text-primary">{{ prod.product_name }}</h6>
+                            <p class="text-secondary">{{ prod.desc }}</p>
+                            <p class="m-0 h6 d-inline">₹{{ orderItem.pricePerItem }}</p>
+                            <p class="ml-4 d-inline">Quantity : <span class="h6">{{ orderItem.quantity }}</span></p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 my-auto pr-5">
+                <div id='timeline' class="row mx-4" style="margin-bottom: -10px;">
+                    <div class='event col-4'>
+                      <div class='status'>Ordered</div>
+                      <div class="dot">
+                        <span class='circle ordered-check'></span>
+                      </div>
+                    </div>
+                    <div class='event col-4'>                    
+                      <div class='status'>Packed</div>
+                      <div class="dot">
+                        <span class='circle packed-check'></span>
+                      </div>
+                    </div>
+                    <div class='event col-4'>
+                      <div class='status'>Shipped</div>
+                      <div class="dot">
+                        <span class='circle shipped-check'></span>
+                      </div>
+                    </div>
+                    <div class="delivered">
+                        <div class="status">Delivered</div>
+                        <div class="dot">
+                            <span class='circle delivered-check'></span>
+                        </div>
+                    </div>
+                    
+                </div>   
+                <hr class="m-0">
+                <p class="ml-1 mt-1"><small>Order has been placed on {{ orderItem.order_date }}</small></p>
+            </div>
+        </div>
+    </div>
+</div>
+    
+{% endblock %}

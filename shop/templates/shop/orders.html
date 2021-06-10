@@ -1,0 +1,58 @@
+{% extends 'shop/basic.html' %}
+{% load customfilters %}
+
+{% block title %} Your Orders {% endblock %}
+
+{% block body %}
+    <div class="w-75 mx-auto">
+        <div class="my-4 mx-5">
+            <h3 class="mb-4">Your Orders</h3>
+            <hr>
+            <div id="items" style="font-size: 14.5px;">
+                <ul class="list-unstyled">
+
+                    {% for product, order in orderList %}
+                        <a href="/order/{{ order.order_id }}" class="text-decoration-none rounded text-dark">
+                            <li class="p-1 my-4 border rounded">
+                                <div class="row px-4 pt-3 mb-4 border rounded-top" style="background-color: rgb(238, 238, 238); margin: -5px;">
+                                    <div>
+                                        <small class="text-secondary m-0">ORDER PLACED</small>
+                                        <p>{{ order.order_date }}</p>
+                                    </div>
+                                    <div class="ml-5">
+                                        <small class="text-secondary m-0">TOTAL</small>
+                                        <p>₹{{ order.pricePerItem|multiply:order.quantity }}</p>
+                                    </div>
+                                    <div class="ml-5 mr-auto">
+                                        <small class="text-secondary m-0">SHIPPED TO</small>
+                                        <p class="text-primary">Abhik Das</p>
+                                    </div>
+                                    <small class="text-secondary mr-4">ORDER ID : OD{{ order.order_id }}</small>
+    
+                                </div>
+                                <div class="row pb-4">
+                                    <div class="col-2 my-auto">
+                                        <img src="/media/{{ product.image }}" class="img-fluid" alt="{{ product.product_name }}">
+                                    </div>
+                                    <div class="col-5 my-auto">
+                                        <h6 class="text-primary">{{ product.product_name }}</h6>
+                                        <p class="text-secondary">{{ product.desc }}</p>
+                                        <p class="m-0 h6 d-inline">₹{{ order.pricePerItem }}</p>
+                                        <p class="ml-4 d-inline">Quantity : <span class="h6">{{ order.quantity }}</span></p>
+                                    </div>
+                                    <div class="col-5 my-auto pr-5">
+                                        <h6>Order has been placed on {{ order.order_date }}</h6>
+                                        <p>Your item is out for delivery</p>
+                                    </div>
+                                </div>
+                            </li>
+                        </a>
+
+                    {% endfor %}
+
+                </ul>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

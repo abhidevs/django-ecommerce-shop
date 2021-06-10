@@ -1,0 +1,119 @@
+{% extends 'shop/basic.html' %}
+{% load customfilters %}
+
+{% block title %} Checkout {% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row mx-1">
+
+            <div class="col-md border rounded-sm mr-5 py-3 px-4 my-4 h-100">
+                <h5>Delivery Address</h5>
+                <hr class="mt-0">
+                <div class="mt-3">
+                    <h6 class="">{{ address.name }}</h6>
+                    <p class="m-0">{{ address.landmark }},</p>
+                    <p class="m-0">{{ address.address }},</p>
+                    <p class="mb-2">{{ address.city }}, {{ address.state }} - {{ address.zip }}</p>
+                    <p class="m-0"><span class="h6">Email :</span> {{ address.email }}</p>
+                    <p class=""><span class="h6">Phone :</span> {{ address.phone }}</p>
+                    <a href="/editAddress/" class="h6 text-decoration-none">Edit Address</a>
+                </div>
+            </div>
+
+            <div class="col-md my-4 pt-3 border rounded-sm pr-4">
+                <h5 class="">Your Order Summary</h5>
+                <hr class="mt-0">
+                <div id="items">
+                    <div class="row small">
+                        <div class="col-8"><p><b>Items Description</b></p></div>
+                        <div class="col-2"><p><b>Quantity</b></p></div>
+                        <div class="col-2 pl-3"><p><b>Price</b></p></div>
+                    </div>
+                    <ul class="list-unstyled">
+    
+                        {% for product in cartProds %}
+    
+                            <li class="p-1 cartItem">
+                                <div class="row">
+                                    <div class="col-2 my-auto">
+                                        <img src="/media/{{ product.image }}" class="img-fluid" alt="{{ product.product_name }}">
+                                    </div>
+                                    <div class="col-6 my-auto">
+                                        <h6 class="m-0">{{ product.product_name }}</h6>
+                                        <small class="m-0">{{ product.desc }}</small>
+                                    </div>
+                                    <div class="col-2 my-auto text-center">
+                                        <span class="badge badge-primary badge-pill">{{ quantity|hash:product.id }}</span>
+                                    </div>
+                                    <div class="col-2 my-auto">
+                                        <p class="m-0">₹<b>{{ product.price }}</b></p>
+                                    </div>
+                                </div>
+                            </li>
+    
+                        {% endfor %}
+    
+                    </ul>
+                    <hr class="mt-0 mb-2">
+                    <div class="row">
+                        <div class="col-6 ml-auto">
+                            <p class="m-0">Subtotal <span class="float-right totalPrice">₹<b></b></span></p>
+                            <p>Shipping Charges <span class="float-right">Free</span></p>
+                        </div>
+                    </div>
+                    <hr class="mt-0">
+                    <div class="row mb-4" style="margin-top: -12px;">
+                        <div class="col-6 ml-auto">
+                            <p class="m-0"><b>Total </b><span class="float-right totalPrice">₹<b></b></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mx-1" style="margin-top: -45px;">
+            <div class="col mr-5 my-4 border rounded-sm py-3 px-4">
+                <h5>Payment Method</h5>
+                <hr class="mt-0">
+
+                <ul class="list-unstyled">
+                    <li class="">Phonepe / Paytm / Google Pay / E-Wallet</li>
+                    <li class="">Credit Card / Debit Card</li>
+                    <li class="">NetBanking</li>
+                    <li class="">Cash on Delivery</li>
+                    <li class="">EMI</li>
+                </ul>
+            </div>
+            <div class="col ml-2"></div>
+        </div>
+
+        <div class="my-4 text-center">
+            <form action="/checkout/" method="post"> {% csrf_token %}
+                <input type="hidden" name="address_id" value="{{ address.address_id }}">
+                <button type="submit" class="btn btn-outline-secondary rounded-sm px-4">Place Order</button>
+            </form>
+        </div>
+        <br>
+
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        updateTotalPrice();
+
+        function updateTotalPrice() {
+            var elementList = $('.cartItem')
+            var totalPrice = 0
+            for (let i = 0; i < elementList.length; i++) {
+                var qty = elementList[i].children[0].children[2].children[0].innerHTML
+                var price = elementList[i].children[0].children[3].children[0].children[0].innerHTML
+                console.log(qty, price)
+                totalPrice += (parseInt(qty) * parseInt(price))
+            }
+
+            $('.totalPrice').children().html(totalPrice)
+        }
+    </script>
+{% endblock  %}

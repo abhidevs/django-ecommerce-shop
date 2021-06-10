@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+      integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+      crossorigin="anonymous"
+    />
+    <script src="https://kit.fontawesome.com/160c5fd196.js" crossorigin="anonymous"></script>
+    
+    {% block links %} {% endblock  %}
+
+    <title>{% block title %} {% endblock %} | Stories</title>
+
+    {% block css %} {% endblock %}
+    
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand ml-5 pl-5 mr-5" href="/blog">Stories</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <form class="form-inline" method="GET" action="/blog/search">
+          <div class="input-group">
+            <input style="width: 500px;" type="search" class="form-control" placeholder="What are you looking for?" aria-label="search" name="query" id="search" aria-describedby="basic-addon2">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i></button>
+            </div>
+          </div>
+        </form>
+        <div class="navbar-nav ml-auto mr-5">
+          
+          {% if user.is_authenticated %}
+
+          <div class="btn-group my-auto">
+            <h6 class="mt-2">Hello {{ user.username }}</h6>
+            <a href='' class="text-decoration-none dropdown-toggle dropdown-toggle-split pl-1 mt-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="sr-only">Toggle Dropdown</span>
+            </a>
+            <div class="dropdown-menu">
+              {% if perms.blog.blog_editor_status %}
+              <a class="dropdown-item" href="/blog/dashboard">Dashboard</a>
+              <div class="dropdown-divider"></div>
+              {% endif %}
+              <a class="dropdown-item" href="/blog/logout">Logout</a>
+            </div>
+          </div>
+
+          {% else %}
+
+          <div class="btn-group my-auto">
+            <a href='/blog/signup' class="text-decoration-none"><strong>SignUp</strong></a>
+            <a href='' style="padding-top: 2px;" class="text-decoration-none dropdown-toggle dropdown-toggle-split pl-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="sr-only">Toggle Dropdown</span>
+            </a>
+
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="/blog/signup">SignUp</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="/blog/login">Login</a>
+            </div>
+          </div>
+
+          {% endif %}
+        
+          <a class="nav-item nav-link mr-4 mr-5" href="/">Back to Shop</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="alert pl-5" id="alert">
+      <button type="button" class="close" data-dismiss="alert">x</button>
+      <strong class="ml-5"></strong>
+    </div>
+
+    {% block body %} {% endblock %}
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+      integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      $("#alert").hide();
+    </script>
+    
+    {% block js %} {% endblock  %}
+    
+  </body>
+</html>
